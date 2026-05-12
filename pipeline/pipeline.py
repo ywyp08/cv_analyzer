@@ -1,8 +1,8 @@
 import logging
-from .extract import extract_text_from_file
-from .structure import parse_sections, parse_profile_sections
+from .processing import extract_text_from_file, parse_sections, parse_profile_sections
 from .scoring import calculate_scores
-from .llm import generate_explanation
+from .scoring.salary import estimate_salary
+from .explaining import generate_explanation
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +25,16 @@ def analyze_cv(path: str) -> dict:
     sections = parse_sections(raw_text)
     profile = parse_profile_sections(sections)
     scores = calculate_scores(profile)
-    explanation = generate_explanation(profile, scores, scores["salary_estimate"])
+    salary_estimate = estimate_salary(scores["seniority_score"], profile)
+    scores["salary_estimate"] = salary_estimate
+    explanation = generate_explanation(profile, scores, salary_estimate)
     result = {
         "seniority_score": scores["seniority_score"],
-        "salary_estimate": scores["salary_estimate"],
+        "salary_estimate": salary_estimate,
         "scores": scores,
         "profile": profile,
-        "summary_insights": _build_summary_insights(profile, scores, scores["salary_estimate"]),
+        "summary_insights": _build_summary_insights(profile, scores, salary_estimate),
         "explanation": explanation,
     }
-    logger.info("Analýza dokončena: Seniority %s, Mzda %s-%s", scores["seniority_score"], scores["salary_estimate"]["min"], scores["salary_estimate"]["max"])
+    logger.info("Analýza dokončena: Seniority %s, Mzda %s-%s", scores["seniority_score"], salary_estimate["min"], salary_estimate["max"])
     return result
