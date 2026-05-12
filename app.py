@@ -1,7 +1,7 @@
 import argparse
 import json
 import logging
-from cv_analyzer.pipeline import analyze_cv
+from pipeline.pipeline import analyze_cv
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
