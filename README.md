@@ -16,26 +16,18 @@ Run the CLI tool with a CV file:
 ```
 python app.py path/to/cv.pdf
 ```
-Or for JSON output:
-```
-python app.py path/to/cv.pdf --json
-```
 
 ### Web Application
 Run the Streamlit web app:
 ```
 streamlit run streamlit_app.py
 ```
-Then open the provided URL in your browser to upload CVs.
 
 ### Generate Synthetic CVs
 Generate test CVs for development:
 ```
 python generate_synthetic_cvs.py -n 20
 ```
-Options:
-- `-n, --number`: Number of CVs to generate (default: 20)
-- `-o, --output`: Output directory (default: data/sample)
 
 ## Pipeline
 
@@ -61,9 +53,3 @@ The `data/` directory contains:
 - **`sample/`**: Sample CV files for testing (DOCX and PDF formats). Use `generate_synthetic_cvs.py` to populate this directory with synthetic CVs.
 - **`uploads/`**: Temporary storage for CVs uploaded through the Streamlit web interface.
 
-## Testing
-
-Run the tests using pytest:
-```
-pytest tests/
-```

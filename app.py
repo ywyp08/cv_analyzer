@@ -9,13 +9,9 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 def main():
     parser = argparse.ArgumentParser(description="AI CV Seniority & Salary Estimator")
     parser.add_argument("file", help="Path to CV file (PDF or DOCX)")
-    parser.add_argument("--json", action="store_true", help="Output results as JSON")
     args = parser.parse_args()
 
     result = analyze_cv(args.file)
-    if args.json:
-        print(json.dumps(result, ensure_ascii=False, indent=2))
-        return
 
     print("=== Seniority & Salary Estimator ===")
     print(f"File: {args.file}")
