@@ -1,6 +1,5 @@
 import os
 import logging
-import requests
 
 HUGGINGFACE_API_KEY_ENV_VAR = "HUGGINGFACE_API_KEY"
 HUGGINGFACE_MODEL_ENV_VAR = "HUGGINGFACE_MODEL"
@@ -77,63 +76,29 @@ def _fallback_explanation(profile: dict, scores: dict, salary: dict) -> str:
         f"Pro zvýšení mzdy o 30 % se doporučuje: {recommendations[0]}."
     )
 
+
 def generate_explanation(profile: dict, scores: dict, salary: dict) -> str:
     prompt = _build_prompt(profile, scores, salary)
-
     hf_key = os.environ.get(HUGGINGFACE_API_KEY_ENV_VAR)
-
     if hf_key:
-        model = os.environ.get(
-            HUGGINGFACE_MODEL_ENV_VAR,
-            "deepseek-ai/DeepSeek-R1:fastest"
-        )
-
+        model = os.environ.get(HUGGINGFACE_MODEL_ENV_VAR, "Qwen/Qwen2.5-7B-Instruct")
         try:
-            if openai is None:
-                raise ImportError(
-                    "Package 'openai' není nainstalované. "
-                    "Spusť: pip install openai"
-                )
-
             logger.info("Používám HF model: %s", model)
-
-            client = openai.OpenAI(
-                base_url="https://router.huggingface.co/v1",
-                api_key=hf_key,
-            )
-
+            client = openai.OpenAI(base_url="https://router.huggingface.co/v1", api_key=hf_key)
             response = client.chat.completions.create(
                 model=model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "Jsi zkušený HR a tech recruiter. "
-                            "Píšeš stručně, konkrétně a profesionálně."
-                        ),
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    },
-                ],
-                max_tokens=400,
+                messages=[{"role": "system","content": ("Jsi zkušený HR a tech recruiter. Píšeš stručně, konkrétně a profesionálně. Odpovídáš v jednom paragrafu."),},{"role": "user", "content": prompt},],
+                max_tokens=1000,
                 temperature=0.7,
             )
-
             text = response.choices[0].message.content
-
             if text:
                 return text.strip()
-
             logger.warning("HF vrátil prázdnou odpověď.")
-
         except Exception as exc:
             logger.exception("HF call failed: %s", exc)
-
     else:
         logger.info(
             "HUGGINGFACE_API_KEY není nastavený. Používám fallback."
         )
-
     return _fallback_explanation(profile, scores, salary)
