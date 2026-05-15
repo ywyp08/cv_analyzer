@@ -1,9 +1,6 @@
 import argparse
-import json
 import logging
 from pipeline.pipeline import analyze_cv
-
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def main():
@@ -11,16 +8,17 @@ def main():
     parser.add_argument("file", help="Path to CV file (PDF or DOCX)")
     args = parser.parse_args()
 
+    logging.getLogger("openai").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
     result = analyze_cv(args.file)
 
     print("=== Seniority & Salary Estimator ===")
-    print(f"File: {args.file}")
+    print(f"Name: {result.get('name', 'Unknown')}")
     print(f"Seniority Score: {result['seniority_score']}/100")
     print(f"Salary estimate: {result['salary_estimate']['min']}–{result['salary_estimate']['max']} CZK / měsíc")
-    print("\nHighlights:")
-    for item in result['summary_insights']:
-        print(f"- {item}")
-    print("\nLLM Explanation:\n")
+    print("\nLLM Explanation:")
     print(result['explanation'])
 
 

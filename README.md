@@ -1,32 +1,23 @@
 # cv_analyzer
-AI pipeline for analyzing CVs to estimate seniority and salary.
+AI pipeline for analyzing CVs to estimate seniority, salary, and give explanation.
 
 ## Installation
-
 1. Clone the repository.
 2. Install dependencies:
    ```
-   pip install -r requirements.txt
+   python -m pip install -r requirements.txt
    ```
 
-## Running
+## How to run
 
 ### Command Line Interface
-Run the CLI tool with a CV file:
 ```
 python app.py path/to/cv.pdf
 ```
 
 ### Web Application
-Run the Streamlit web app:
 ```
 streamlit run streamlit_app.py
-```
-
-### Generate Synthetic CVs
-Generate test CVs for development:
-```
-python generate_synthetic_cvs.py -n 20
 ```
 
 ## Pipeline
@@ -38,8 +29,8 @@ The CV analysis pipeline consists of three main stages:
    - `structure.py`: Parses CV sections (experience, skills, education, etc.) and structures the data
 
 2. **Scoring** (`pipeline/scoring/`)
-   - `seniority.py`: Calculates seniority score based on experience, skills, education, roles, and potential
-   - `salary.py`: Estimates salary range based on seniority score and profile attributes
+   - `seniority.py`: Calculates seniority score based on experience and education
+   - `salary.py`: Estimates salary range based on seniority score and skills
 
 3. **Explaining** (`pipeline/explaining/`)
    - `explain.py`: Generates human-readable explanations using LLM or fallback heuristics

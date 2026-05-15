@@ -21,9 +21,40 @@ SENIORITY_KEYWORDS = [
 
 EDUCATION_LEVELS = ["phd", "doctor", "master", "msc", "bachelor", "bs", "ba", "degree"]
 
+SKILL_BLACKLIST = {
+    "skills", "technical skills", "experience", "education", "summary", "certifications", "profile"
+}
+
+KNOWN_HEADER_PHRASES = [
+    *[phrase for values in SECTION_KEYWORDS.values() for phrase in values],
+    "curriculum vitae", "cv", "životopis", "resume"
+]
+
 
 def _normalize_line(line: str) -> str:
     return line.strip().lower()
+
+
+def parse_candidate_name(text: str) -> str:
+    for line in (line.strip() for line in text.splitlines() if line.strip()):
+        normalized = _normalize_line(line)
+        if any(phrase in normalized for phrase in KNOWN_HEADER_PHRASES):
+            continue
+        if re.search(r"\d", line):
+            continue
+        words = [word for word in line.replace(".", "").replace(",", "").split() if word]
+        if 1 < len(words) <= 4 and all(word[0].isupper() or word.isupper() for word in words if word[0].isalpha()):
+            return line
+        if 1 < len(words) <= 5 and len(line) < 40:
+            return line
+    return "Unknown"
+
+
+def _is_section_header(line: str, key: str) -> bool:
+    if len(line.split()) > 5:
+        return False
+    pattern = rf"(^|\s){re.escape(key)}(\s|$|[\.:,;\-])"
+    return re.search(pattern, line) is not None
 
 
 def parse_sections(text: str) -> Dict[str, str]:
@@ -33,10 +64,16 @@ def parse_sections(text: str) -> Dict[str, str]:
         normalized = _normalize_line(line)
         if not normalized:
             continue
+
+        section_header = None
         for section, keys in SECTION_KEYWORDS.items():
-            if any(key in normalized for key in keys):
-                current = section
+            if any(_is_section_header(normalized, key) for key in keys):
+                section_header = section
                 break
+        if section_header:
+            current = section_header
+            continue
+
         sections[current].append(line.strip())
     return {key: "\n".join(value) for key, value in sections.items()}
 
@@ -48,10 +85,12 @@ def parse_skills(text: str) -> List[str]:
     tokens = re.split(r"[,;/\\]| and | & ", raw, flags=re.I)
     skills = []
     for token in tokens:
-        token = token.strip(" .\t")
-        if len(token) < 2:
+        token = token.strip(" .\t").lower()
+        if len(token) < 2 or token in SKILL_BLACKLIST:
             continue
-        skills.append(token.lower())
+        if token.isdigit():
+            continue
+        skills.append(token)
     return sorted({skill for skill in skills if len(skill) > 1})
 
 

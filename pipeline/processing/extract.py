@@ -5,12 +5,12 @@ logger = logging.getLogger(__name__)
 
 try:
     import pdfplumber
-except ImportError:  # pragma: no cover
+except ImportError:
     pdfplumber = None
 
 try:
     import docx
-except ImportError:  # pragma: no cover
+except ImportError:
     docx = None
 
 

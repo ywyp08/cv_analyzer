@@ -1,6 +1,5 @@
-import math
 import re
-from typing import Dict, Tuple
+from typing import Dict
 
 
 def _extract_years_from_text(text: str) -> float:
@@ -47,25 +46,19 @@ def _skills_score(skills: list) -> int:
     return score
 
 
-def _potential_score(text: str) -> int:
-    if not text:
-        return 5
-    keywords = ["strategic", "mentor", "coaching", "leadership", "innovation", "cross-functional", "scalable"]
-    count = sum(1 for keyword in keywords if keyword in text.lower())
-    return min(15, 5 + count * 2)
-
-
 def calculate_scores(profile: Dict[str, object]) -> Dict[str, object]:
-    years = _extract_years_from_text(profile.get("experience_text", ""))
+    years = max(
+        _extract_years_from_text(profile.get("experience_text", "")),
+        _extract_years_from_text(profile.get("summary", "")),
+    )
     experience_score = min(30, int(years * 3.5) + 5)
     experience_score = max(0, experience_score)
 
     skills_score = _skills_score(profile.get("skills", []))
     education_score = _education_score(profile.get("education_level", ""))
     role_score = _role_score(profile)
-    potential_score = _potential_score(profile.get("summary", ""))
 
-    total = experience_score + skills_score + education_score + role_score + potential_score
+    total = experience_score + education_score + role_score
     total = min(100, max(0, total))
 
     return {
@@ -75,5 +68,4 @@ def calculate_scores(profile: Dict[str, object]) -> Dict[str, object]:
         "skills_score": skills_score,
         "education_score": education_score,
         "role_score": role_score,
-        "potential_score": potential_score,
     }

@@ -1,12 +1,21 @@
 import os
-import json
 import logging
+import requests
+
+HUGGINGFACE_API_KEY_ENV_VAR = "HUGGINGFACE_API_KEY"
+HUGGINGFACE_MODEL_ENV_VAR = "HUGGINGFACE_MODEL"
 
 logger = logging.getLogger(__name__)
 
 try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+try:
     import openai
-except ImportError:  # pragma: no cover
+except ImportError:
     openai = None
 
 
@@ -47,8 +56,8 @@ def _fallback_explanation(profile: dict, scores: dict, salary: dict) -> str:
         weak.append("rozšířit technické dovednosti")
     if scores['role_score'] < 10:
         weak.append("získat více seniorních nebo vedoucích pozic")
-    if scores['potential_score'] < 10:
-        weak.append("jasněji popsat vedení, strategii a dopad práce")
+    if scores['education_score'] < 10:
+        weak.append("posílit vzdělání nebo certifikace")
 
     recommendations = []
     skills_text = " ".join(profile.get("skills", [])).lower()
@@ -68,27 +77,63 @@ def _fallback_explanation(profile: dict, scores: dict, salary: dict) -> str:
         f"Pro zvýšení mzdy o 30 % se doporučuje: {recommendations[0]}."
     )
 
-
 def generate_explanation(profile: dict, scores: dict, salary: dict) -> str:
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if api_key and openai is not None:
+    prompt = _build_prompt(profile, scores, salary)
+
+    hf_key = os.environ.get(HUGGINGFACE_API_KEY_ENV_VAR)
+
+    if hf_key:
+        model = os.environ.get(
+            HUGGINGFACE_MODEL_ENV_VAR,
+            "deepseek-ai/DeepSeek-R1:fastest"
+        )
+
         try:
-            openai.api_key = api_key
-            prompt = _build_prompt(profile, scores, salary)
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
-                max_tokens=400,
+            if openai is None:
+                raise ImportError(
+                    "Package 'openai' není nainstalované. "
+                    "Spusť: pip install openai"
+                )
+
+            logger.info("Používám HF model: %s", model)
+
+            client = openai.OpenAI(
+                base_url="https://router.huggingface.co/v1",
+                api_key=hf_key,
             )
-            text = response.choices[0].message.content.strip()
-            return text
+
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Jsi zkušený HR a tech recruiter. "
+                            "Píšeš stručně, konkrétně a profesionálně."
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    },
+                ],
+                max_tokens=400,
+                temperature=0.7,
+            )
+
+            text = response.choices[0].message.content
+
+            if text:
+                return text.strip()
+
+            logger.warning("HF vrátil prázdnou odpověď.")
+
         except Exception as exc:
-            logger.warning("LLM volání selhalo: %s", exc)
+            logger.exception("HF call failed: %s", exc)
+
     else:
-        if openai is None:
-            logger.info("OpenAI knihovna není dostupná; používám fallback vysvětlení.")
-        else:
-            logger.info("OPENAI_API_KEY není nastaven. Používám fallback vysvětlení.")
+        logger.info(
+            "HUGGINGFACE_API_KEY není nastavený. Používám fallback."
+        )
 
     return _fallback_explanation(profile, scores, salary)

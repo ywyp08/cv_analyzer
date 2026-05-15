@@ -12,78 +12,176 @@ FIRST_NAMES = ["Jan", "Petr", "Pavel", "Tomáš", "Martin", "Jakub", "Lukáš", 
 LAST_NAMES = ["Novák", "Svoboda", "Novotný", "Dvořák", "Černý", "Procházka", "Kučera", "Veselý", "Horák", "Němec",
               "Marek", "Pokorný", "Pospíšil", "Hájek", "Král", "Jelínek", "Růžička", "Beneš", "Fiala", "Sedláček"]
 
-SKILLS = ["Python", "Java", "JavaScript", "React", "Angular", "Node.js", "AWS", "Azure", "GCP", "Docker",
-          "Kubernetes", "SQL", "NoSQL", "PostgreSQL", "MongoDB", "Terraform", "CI/CD", "Machine Learning",
-          "Data Engineering", "DevOps", "Cloud Architecture", "Microservices", "REST APIs", "GraphQL",
-          "Agile", "Scrum", "Leadership", "Team Management"]
-
-ROLES = [
-    ("Junior Developer", 1, 2),
-    ("Software Developer", 2, 4),
-    ("Senior Developer", 4, 7),
-    ("Lead Developer", 6, 10),
-    ("Software Architect", 8, 12),
-    ("Engineering Manager", 7, 15),
-    ("Principal Engineer", 10, 15)
+SKILLS = [
+    "Python", "Java", "JavaScript", "React", "Angular", "Node.js", "AWS", "Azure", "GCP", "Docker",
+    "Kubernetes", "SQL", "NoSQL", "PostgreSQL", "MongoDB", "Terraform", "CI/CD", "Machine Learning",
+    "Data Engineering", "DevOps", "Cloud Architecture", "Microservices", "REST APIs", "GraphQL",
+    "Agile", "Scrum", "Leadership", "Team Management", "Salesforce", "CRM", "Customer Service",
+    "Content Creation", "Copywriting", "SEO", "SEM", "Financial Analysis", "Budgeting", "Excel",
+    "Project Management", "UX Design", "Adobe Photoshop", "Figma", "Illustrator", "Quality Assurance",
+    "Network Administration", "Helpdesk Support", "Healthcare Compliance", "Clinical Research",
+    "Business Development", "Email Marketing", "Social Media", "Human Resources"
 ]
 
-COMPANIES = ["TechCorp", "DataSystems", "CloudWorks", "InnoSoft", "DevHub", "CodeFactory", "ByteLabs",
-             "AgileWorks", "SmartSolutions", "DigitalForge", "WebMasters", "AppBuilders"]
+ROLE_POOLS = {
+    "IT": [
+        ("Junior Developer", 1, 2),
+        ("Software Developer", 2, 4),
+        ("Senior Developer", 4, 7),
+        ("Lead Developer", 6, 10),
+        ("Software Architect", 8, 12),
+        ("Engineering Manager", 7, 15),
+        ("Principal Engineer", 10, 15),
+        ("IT Support Specialist", 1, 4),
+    ],
+    "Business": [
+        ("Marketing Assistant", 1, 3),
+        ("Sales Representative", 1, 4),
+        ("Business Analyst", 2, 5),
+        ("Project Coordinator", 1, 4),
+        ("Product Manager", 3, 8),
+        ("Operations Manager", 5, 12),
+    ],
+    "Design": [
+        ("Graphic Designer", 1, 3),
+        ("UX Designer", 2, 5),
+        ("Visual Designer", 1, 4),
+        ("Creative Director", 6, 12),
+        ("Art Director", 5, 10),
+    ],
+    "Healthcare": [
+        ("Healthcare Assistant", 1, 3),
+        ("Clinical Researcher", 2, 5),
+        ("Nursing Specialist", 3, 7),
+        ("Healthcare Manager", 5, 12),
+    ],
+    "Finance": [
+        ("Accounting Assistant", 1, 3),
+        ("Financial Analyst", 2, 5),
+        ("Tax Specialist", 2, 5),
+        ("Senior Accountant", 4, 8),
+        ("Finance Manager", 6, 12),
+    ],
+}
+
+COMPANIES = [
+    "TechCorp", "DataSystems", "CloudWorks", "InnoSoft", "DevHub", "CodeFactory", "ByteLabs",
+    "AgileWorks", "SmartSolutions", "DigitalForge", "WebMasters", "AppBuilders", "RetailFront", "HealthWay",
+    "MarketPulse", "FinancePro", "CreativeStudio", "GreenLogistics", "UrbanServices"
+]
 
 EDUCATION = [
+    "High School Diploma",
+    "Vocational Certificate in IT Support",
     "Bachelor of Science in Computer Science",
+    "Bachelor of Arts in Marketing",
+    "Bachelor of Science in Graphic Design",
+    "Bachelor of Science in Nursing",
     "Master of Science in Software Engineering",
-    "Bachelor of Engineering in Information Technology",
-    "Master of Science in Computer Science",
-    "Bachelor of Science in Information Systems",
+    "Master of Business Administration",
+    "Master of Science in Data Analytics",
     "PhD in Computer Science"
 ]
+
+SUMMARY_TEMPLATES = {
+    "IT": [
+        "Experienced professional with {years} years in software development and systems engineering.",
+        "Technology specialist focused on delivering stable applications and cloud infrastructure.",
+        "Developer with strong skills in building scalable solutions and automating operations.",
+    ],
+    "Business": [
+        "Business professional with {years} years driving sales, operations and process improvements.",
+        "Analytical thinker with experience in project delivery and stakeholder communication.",
+        "Result-oriented contributor helping teams meet targets and improve customer outcomes.",
+    ],
+    "Design": [
+        "Creative designer with {years} years producing user-centered visuals and digital experiences.",
+        "Design specialist blending brand storytelling with practical execution.",
+        "Visual communicator experienced in digital campaigns and product interfaces.",
+    ],
+    "Healthcare": [
+        "Healthcare professional with {years} years supporting patient care and medical operations.",
+        "Clinically minded specialist focused on process quality and compliance.",
+        "Patient-oriented practitioner with experience in multidisciplinary teams.",
+    ],
+    "Finance": [
+        "Finance professional with {years} years analyzing performance and supporting budgeting decisions.",
+        "Detail-oriented analyst experienced in financial reporting and business planning.",
+        "Accounting specialist supporting accurate financial operations and risk management.",
+    ],
+}
+
+
+def _build_experience_path(path_roles, target_years):
+    experience = []
+    current_year = 2024
+    years_exp = 0
+
+    while years_exp < target_years and current_year > 2010:
+        role_info = random.choice(path_roles)
+        min_dur, max_dur = role_info[1], role_info[2]
+        remaining = target_years - years_exp
+        duration = random.randint(min_dur, min(max_dur, max(min_dur, remaining)))
+        start_year = current_year - duration
+        experience.append({
+            "role": role_info[0],
+            "company": random.choice(COMPANIES),
+            "start": start_year,
+            "end": current_year,
+            "duration": duration,
+        })
+        years_exp += duration
+        current_year = start_year
+        if len(experience) >= 4:
+            break
+
+    return experience, years_exp
 
 
 def generate_cv_data():
     name = f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)}"
-    
-    num_roles = random.randint(2, 5)
-    experience = []
-    current_year = 2024
-    years_exp = 0
-    
-    for i in range(num_roles):
-        role_info = random.choice(ROLES)
-        role_name = role_info[0]
-        duration = random.randint(role_info[1], role_info[2])
-        start_year = current_year - duration
-        experience.append({
-            "role": role_name,
-            "company": random.choice(COMPANIES),
-            "start": start_year,
-            "end": current_year,
-            "duration": duration
-        })
-        years_exp += duration
-        current_year = start_year
-        if current_year < 2010:
-            break
-    
-    num_skills = random.randint(5, 12)
-    skills = random.sample(SKILLS, num_skills)
-    
+    industry = random.choice(list(ROLE_POOLS.keys()))
+    path_roles = ROLE_POOLS[industry]
+
+    career_type = random.choices(
+        ["junior", "mid", "senior"],
+        weights=[40, 40, 20],
+        k=1,
+    )[0]
+
+    if career_type == "junior":
+        target_years = random.randint(1, 3)
+    elif career_type == "mid":
+        target_years = random.randint(3, 6)
+    else:
+        target_years = random.randint(6, 15)
+
+    experience, years_exp = _build_experience_path(path_roles, target_years)
+    if not experience:
+        experience, years_exp = _build_experience_path(path_roles, max(1, target_years))
+
+    if career_type == "junior":
+        num_skills = random.randint(3, 7)
+    elif career_type == "mid":
+        num_skills = random.randint(5, 10)
+    else:
+        num_skills = random.randint(8, 14)
+
+    skills = random.sample(SKILLS, min(len(SKILLS), num_skills))
     education = random.choice(EDUCATION)
-    
-    summary_templates = [
-        f"Experienced software engineer with {years_exp} years of expertise in building scalable applications.",
-        f"Strategic thinker with {years_exp} years of leadership in software development and team mentoring.",
-        f"Results-driven developer with {years_exp} years of experience in cloud architecture and DevOps.",
-        f"Innovation-focused engineer with {years_exp} years delivering high-impact solutions.",
-    ]
-    summary = random.choice(summary_templates)
-    
+
+    summary = random.choice(SUMMARY_TEMPLATES[industry]).format(years=years_exp)
+    if career_type == "junior":
+        summary = f"Motivated {industry.lower()} professional with {years_exp} years of practical experience. {summary}"
+    elif career_type == "senior":
+        summary = f"Senior {industry.lower()} specialist with {years_exp} years of proven results. {summary}"
+
     return {
         "name": name,
         "summary": summary,
         "experience": experience,
         "skills": skills,
-        "education": education
+        "education": education,
     }
 
 
