@@ -3,10 +3,7 @@ AI pipeline for analyzing CVs to estimate seniority and salary.
 
 ## Installation
 1. Clone the repository.
-2. Install dependencies:
-   ```
-   python -m pip install -r requirements.txt
-   ```
+2. Install dependencies.
 
 ## How to run
 
