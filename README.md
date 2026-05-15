@@ -1,5 +1,5 @@
 # cv_analyzer
-AI pipeline for analyzing CVs to estimate seniority, salary, and give explanation.
+AI pipeline for analyzing CVs to estimate seniority and salary.
 
 ## Installation
 1. Clone the repository.
@@ -22,8 +22,6 @@ streamlit run streamlit_app.py
 
 ## Pipeline
 
-The CV analysis pipeline consists of three main stages:
-
 1. **Processing** (`pipeline/processing/`)
    - `extract.py`: Extracts text from PDF and DOCX files
    - `structure.py`: Parses CV sections (experience, skills, education, etc.) and structures the data
@@ -36,6 +34,11 @@ The CV analysis pipeline consists of three main stages:
    - `explain.py`: Generates human-readable explanations using LLM or fallback heuristics
 
 The main `pipeline.py` orchestrates these stages to produce a comprehensive CV analysis.
+For LLM explanation create .env file in the /explaining folder with:
+```
+export HUGGINGFACE_API_KEY="your_huggingface_api_key"
+export HUGGINGFACE_MODEL="desired_llm_model"
+```
 
 ## Data
 
